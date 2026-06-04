@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Casino d'Hyrule</title>
+    <style>
+        body { background-color: #0d0f12; color: #ffffff; font-family: sans-serif; margin: 0; padding: 20px; }
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; background: #13171e; border-radius: 8px; margin-bottom: 20px; }
+        .logo { color: #f1c40f; font-weight: bold; font-size: 20px; }
+        .user-menu { display: flex; align-items: center; gap: 10px; }
+        .rubis-pill { background: #1c2331; padding: 6px 12px; border-radius: 20px; color: #f1c40f; font-weight: bold;}
+        .stats-container { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 25px; }
+        .stat-card { background: #13171e; padding: 20px; border-radius: 8px; text-align: center; border-bottom: 3px solid #1c2331; }
+        .stat-card.solde { border-color: #f1c40f; }
+        .stat-card.solde .num { color: #f1c40f; }
+        .stat-card.victoires { border-color: #2ecc71; }
+        .stat-card.victoires .num { color: #2ecc71; }
+        .stat-card .num { font-size: 28px; font-weight: bold; display: block; }
+        .stat-card .label { color: #566573; font-size: 12px; text-transform: uppercase; margin-top: 5px;}
+        .bonus-banner { background: #181f2a; padding: 15px 20px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-left: 4px solid #f1c40f; }
+        .btn-recuperer { background: #f1c40f; color: #000; border: none; padding: 10px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; }
+        .games-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+        .game-card { background: #13171e; padding: 20px; border-radius: 8px; display: flex; align-items: center; gap: 15px; position: relative; cursor: pointer; transition: transform 0.2s; }
+        .game-card:hover { transform: translateY(-3px); background: #1c2331; }
+        .game-icon { font-size: 30px; }
+        .game-info h3 { margin: 0 0 5px 0; font-size: 16px; }
+        .game-info p { margin: 0; color: #566573; font-size: 12px; }
+        .multiplier { position: absolute; top: 10px; right: 10px; background: rgba(241, 196, 15, 0.1); color: #f1c40f; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="logo">🔺 TRIFORCE CASINO</div>
+        <div class="user-menu">
+            <div class="rubis-pill">🔻 <span id="nav-solde">100</span></div>
+            <span id="nav-username">Chargement...</span>
+        </div>
+    </div>
+
+    <div class="stats-container">
+        <div class="stat-card solde">
+            <span class="num" id="card-solde">100</span>
+            <span class="label">Solde (Rubis)</span>
+        </div>
+        <div class="stat-card">
+            <span class="num" id="card-parties">0</span>
+            <span class="label">Parties</span>
+        </div>
+        <div class="stat-card victoires">
+            <span class="num" id="card-victoires">0</span>
+            <span class="label">Victoires</span>
+        </div>
+        <div class="stat-card">
+            <span class="num" id="card-gagne">0</span>
+            <span class="label">Total Gagné</span>
+        </div>
+    </div>
+
+    <div class="bonus-banner">
+        <div>🎁 Bonus quotidien : +10 Rubis</div>
+        <button class="btn-recuperer" onclick="recupererBonus()">Récupérer</button>
+    </div>
+
+    <h2>🎰 JEUX DISPONIBLES</h2>
+    <div class="games-grid">
+        <div class="game-card"><span class="multiplier">x1.94</span><div class="game-icon">🪙</div><div class="game-info"><h3>Pile ou Face</h3><p>50% de chance.</p></div></div>
+        <div class="game-card"><span class="multiplier">x5.82</span><div class="game-icon">🎲</div><div class="game-info"><h3>Lancer de Dés</h3><p>Devinez le numéro.</p></div></div>
+        <div class="game-card"><span class="multiplier">x9.00</span><div class="game-icon">🎰</div><div class="game-info"><h3>Machine à Sous</h3><p>Alignez les symboles.</p></div></div>
+    </div>
+
+    <script>
+        // Va chercher les infos réelles du joueur sur l'API du serveur
+        async function loadUser() {
+            const res = await fetch('/api/user');
+            if(res.ok) {
+                const data = await res.json();
+                document.getElementById('nav-username').innerText = data.username;
+                document.getElementById('nav-solde').innerText = data.solde;
+                document.getElementById('card-solde').innerText = data.solde;
+                document.getElementById('card-parties').innerText = data.parties;
+                document.getElementById('card-victoires').innerText = data.victoires;
+                document.getElementById('card-gagne').innerText = data.totalGagne;
+            }
+        }
+        
+        async function recupererBonus() {
+            const res = await fetch('/api/bonus', { method: 'POST' });
+            if(res.ok) {
+                alert("Félicitations ! Vous avez reçu 10 Rubis !");
+                loadUser();
+            } else {
+                const err = await res.json();
+                alert(err.error);
+            }
+        }
+        
+        loadUser();
+    </script>
+</body>
+</html>
